@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TruthSeeker Plus — Video URL Discovery Engine</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #050d1a;
+            --bg2: #0a1628;
+            --bg3: #0d1b3e;
+            --bg4: #16213e;
+            --accent: #e94560;
+            --accent2: #0f3460;
+            --blue: #7ec8e3;
+            --green: #4caf50;
+            --dim: #556080;
+            --text: #c8d6f0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(90deg, #090f20 0%, #111827 100%);
+            border-bottom: 1px solid #1a2540;
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -.5px;
+        }
+
+        header span {
+            color: var(--dim);
+            font-size: .9rem;
+        }
+
+        /* ── Layout ── */
+        main {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 61px);
+            padding: 18px 22px;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        /* ── Card ── */
+        .card {
+            background: var(--bg4);
+            border: 1px solid #1a2a4a;
+            border-radius: 10px;
+            padding: 14px 18px;
+        }
+
+        /* ── URL Row ── */
+        .url-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .url-row label {
+            color: var(--dim);
+            font-size: .8rem;
+            white-space: nowrap;
+        }
+
+        .url-row input {
+            flex: 1;
+        }
+
+        /* ── Options grid ── */
+        .opts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .field label {
+            color: var(--dim);
+            font-size: .75rem;
+        }
+
+        /* ── Cookie row ── */
+        .cookie-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .cookie-row label {
+            color: var(--dim);
+            font-size: .8rem;
+            white-space: nowrap;
+        }
+
+        .cookie-row input {
+            flex: 1;
+        }
+
+        .cookie-row small {
+            color: #334;
+            white-space: nowrap;
+            font-size: .72rem;
+        }
+
+        /* ── Inputs ── */
+        input[type=text],
+        input[type=number] {
+            background: var(--bg3);
+            border: 1px solid #1e2e52;
+            border-radius: 6px;
+            color: var(--text);
+            padding: 7px 10px;
+            font-size: .85rem;
+            font-family: 'JetBrains Mono', monospace;
+            width: 100%;
+            transition: border-color .2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent2);
+        }
+
+        /* ── Checkboxes ── */
+        .checks {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .checks label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .checks input[type=checkbox] {
+            accent-color: var(--accent);
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+        }
+
+        /* ── Buttons ── */
+        .btns {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 9px 20px;
+            border: none;
+            border-radius: 7px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: .85rem;
+            transition: all .18s;
+            letter-spacing: .02em;
+        }
+
+        #btn-start {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        #btn-start:hover {
+            background: #c73652;
+        }
+
+        #btn-start:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        #btn-parse {
+            background: var(--accent2);
+            color: #fff;
+        }
+
+        #btn-parse:hover {
+            background: #1a4a80;
+        }
+
+        #btn-html {
+            background: #1a472a;
+            color: #fff;
+        }
+
+        #btn-html:hover {
+            background: #27ae60;
+        }
+
+        #btn-pdf {
+            background: #1a3060;
+            color: #fff;
+        }
+
+        #btn-pdf:hover {
+            background: #2255c0;
+        }
+
+        #btn-clear {
+            background: #222;
+            color: #aaa;
+        }
+
+        #btn-clear:hover {
+            background: #333;
+        }
+
+        .btn-save {
+            display: none;
+        }
+
+        /* ── Progress ── */
+        .progress-wrap {
+            background: var(--bg3);
+            border-radius: 4px;
+            height: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width .3s;
+            border-radius: 4px;
+        }
+
+        /* ── Status bar ── */
+        #status {
+            color: var(--dim);
+            font-size: .8rem;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #count {
+            color: var(--blue);
+            font-weight: 600;
+            font-size: .85rem;
+        }
+
+        /* ── Results feed ── */
+        #feed {
+            flex: 1;
+            background: var(--bg2);
+            border: 1px solid #1a2540;
+            border-radius: 10px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .8rem;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .log-line {
+            color: var(--dim);
+        }
+
+        .hit-line {
+            color: var(--blue);
+        }
+
+        .hit-line a {
+            color: var(--blue);
+            text-decoration: none;
+        }
+
+        .hit-line a:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .range-line {
+            color: #3a4a6a;
+            font-size: .75rem;
+        }
+
+        /* ── Scrollbar ── */
+        #feed::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #feed::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #feed::-webkit-scrollbar-thumb {
+            background: #1e2e52;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🔍 TruthSeeker Plus</h1>
+        <span>Video URL Discovery Engine</span>
+    </header>
+
+    <main>
+        <!-- URL input -->
+        <div class="card">
+            <div class="url-row">
+                <label for="url-input">Seed URL</label>
+                <input id="url-input" type="text" placeholder="https://example.gov/files/EFTA01648642.pdf"
+                    onkeydown="if(event.key==='Enter') doParse()">
+                <button id="btn-parse" onclick="doParse()">Parse</button>
+            </div>
+        </div>
+
+        <!-- Options -->
+        <div class="card">
+            <div id="base-display" style="color:var(--dim);font-size:.78rem;
+         font-family:'JetBrains Mono',monospace;margin-bottom:10px;">—</div>
+            <div class="opts">
+                <div class="field">
+                    <label>Start #</label>
+                    <input id="start-num" type="text" value="">
+                </div>
+                <div class="field">
+                    <label>Max scan</label>
+                    <input id="max-scan" type="number" value="500" min="1">
+                </div>
+                <div class="field">
+                    <label>Stop after misses</label>
+                    <input id="max-miss" type="number" value="50" min="1">
+                </div>
+                <div class="field">
+                    <label>Min delay (s)</label>
+                    <input id="delay-min" type="number" value="3" min="0" step="0.5">
+                </div>
+                <div class="field">
+                    <label>Max delay (s)</label>
+                    <input id="delay-max" type="number" value="7" min="0" step="0.5">
+                </div>
+
+                <!-- Interactive Mode (Middle Section) -->
+                <div class="field" style="grid-column: span 2;">
+                    <label>Interactive Mode</label>
+                    <div class="checks"
+                        style="background: var(--bg2); padding: 8px 12px; border-radius: 6px; border: 1px solid #1a2a4a;">
+                        <label title="Mimic human clicks on the page instead of guessing download URLs"><input
+                                type="checkbox" id="click-mode">Click Mode</label>
+                        <label title="Automatically save found files to a local 'downloads' folder"><input
+                                type="checkbox" id="auto-download">Auto-Download</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Extensions Row -->
+            <div class="opts"
+                style="margin-top: 20px; border-top: 1px solid #1a2a4a; padding-top: 20px; background: rgba(0,0,0,0.15); border-radius: 12px; padding: 15px;">
+                <div class="field" style="grid-column: 1 / -1;">
+                    <label
+                        style="color: var(--blue); font-weight: 600; font-size: 0.9rem; margin-bottom: 12px; display: block;">Extensions
+                        (Checkboxes + Custom CSV)</label>
+                    <div class="checks" style="display: flex; align-items: center; gap: 20px;">
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text);">
+                            <input type="checkbox" id="ext-mp4" checked style="accent-color: var(--accent);"> .mp4
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text);">
+                            <input type="checkbox" id="ext-mov" checked style="accent-color: var(--accent);"> .mov
+                        </label>
+                        <input id="ext-custom" type="text" placeholder=".pdf, .zip, .mp3"
+                            style="background: var(--bg2); border: 1px solid #1a2a4a; color: white; padding: 6px 12px; border-radius: 6px; flex: 1; max-width: 400px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cookie -->
+        <div class="card">
+            <div class="cookie-row">
+                <label>Session Cookie <em style="color:#444">(optional)</em></label>
+                <input id="cookie-input" type="text"
+                    placeholder="Paste browser Cookie header — or leave blank for auto Playwright gate handling">
+                <small>F12 → Network → request → Headers → Cookie:</small>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card" style="padding:10px 18px;">
+            <div class="btns">
+                <button id="btn-start" disabled onclick="toggleScan()">▶ Start Scan</button>
+                <button id="btn-html" class="btn-save" onclick="saveHTML()">🌐 Save HTML</button>
+                <button id="btn-pdf" class="btn-save" onclick="savePDF()">💾 Save PDF</button>
+                <button id="btn-clear" onclick="clearFeed()">Clear</button>
+                <span id="count">0 valid URLs found</span>
+                <span style="flex:1"></span>
+                <span id="status">Ready</span>
+            </div>
+            <div class="progress-wrap" style="margin-top:8px;">
+                <div class="progress-bar" id="prog-bar"></div>
+            </div>
+        </div>
+
+        <!-- Feed -->
+        <div id="feed">
+            <div class="log-line">TruthSeeker Plus ready. Paste a seed URL above and click Parse.</div>
+        </div>
+    </main>
+
+    <script>
+        // ── State ──────────────────────────────────────────────────────────────────
+        let parsed = null;    // {prefix, num_width, base_num, base_url, next_num}
+        let validUrls = [];
+        let evtSrc = null;
+        let scanning = false;
+
+        // ── Config persistence (localStorage) ─────────────────────────────────────
+        const CFG_KEY = 'ts_config';
+
+        function saveConfig() {
+            localStorage.setItem(CFG_KEY, JSON.stringify({
+                url: g('url-input').value,
+                maxScan: g('max-scan').value,
+                maxMiss: g('max-miss').value,
+                delayMin: g('delay-min').value,
+                delayMax: g('delay-max').value,
+                extMp4: g('ext-mp4').checked,
+                cookie: g('cookie-input').value,
+                clickMode: g('click-mode').checked,
+                autoDownload: g('auto-download').checked,
+            }));
+        }
+
+        function loadConfig() {
+            try {
+                const c = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
+                if (c.url) g('url-input').value = c.url;
+                if (c.maxScan) g('max-scan').value = c.maxScan;
+                if (c.maxMiss) g('max-miss').value = c.maxMiss;
+                if (c.delayMin) g('delay-min').value = c.delayMin;
+                if (c.delayMax) g('delay-max').value = c.delayMax;
+                if (c.cookie) g('cookie-input').value = c.cookie;
+                g('ext-mp4').checked = c.extMp4 !== false;
+                g('ext-mov').checked = c.extMov !== false;
+                if (c.extCustom) g('ext-custom').value = c.extCustom;
+                g('click-mode').checked = !!c.clickMode;
+                g('auto-download').checked = !!c.autoDownload;
+            } catch (e) { }
+        }
+
+        // ── Helpers ────────────────────────────────────────────────────────────────
+        function g(id) { return document.getElementById(id); }
+
+        function addLine(text, cls) {
+            const d = document.createElement('div');
+            d.className = cls || 'log-line';
+            d.textContent = text;
+            return g('feed').appendChild(d);
+        }
+
+        function addLink(url) {
+            const d = document.createElement('div');
+            d.className = 'hit-line';
+            d.innerHTML = `<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+            g('feed').appendChild(d);
+            g('feed').scrollTop = g('feed').scrollHeight;
+        }
+
+        function scrollFeed() { const f = g('feed'); f.scrollTop = f.scrollHeight; }
+
+        // ── Parse ──────────────────────────────────────────────────────────────────
+        async function doParse() {
+            const url = g('url-input').value.trim();
+            if (!url) return;
+
+            const res = await fetch('/parse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+            const data = await res.json();
+
+            if (data.error) {
+                addLine(`✖ Parse error: ${data.error}`);
+                return;
+            }
+
+            parsed = data;
+            g('start-num').value = String(data.base_num).padStart(data.num_width, '0');
+
+            // Display suffix in the custom extension box if it's not a standard file extension
+            if (data.suffix && !['.mp4', '.mov'].includes(data.suffix.toLowerCase())) {
+                g('ext-custom').value = data.suffix;
+            }
+
+            g('base-display').textContent =
+                `Base: ${data.prefix}[N]${data.suffix}   ·   ` +
+                `Seed: ${String(data.base_num).padStart(data.num_width, '0')}   ·   ` +
+                `${data.num_width}-digit`;
+            g('btn-start').disabled = false;
+
+            addLine(`\n✔ Parsed OK`);
+            addLine(`  Full Prefix : ${data.prefix}`);
+            addLine(`  Last Number : ${data.base_num} (${data.num_width} digits)`);
+            if (data.suffix) addLine(`  Suffix      : ${data.suffix}`);
+            addLine(`  Scanning from: ${data.prefix}${String(data.base_num).padStart(data.num_width, '0')}${data.suffix}…\n`);
+            scrollFeed();
+        }
+
+        // ── Scan ───────────────────────────────────────────────────────────────────
+        function toggleScan() {
+            if (scanning) stopScan();
+            else startScan();
+        }
+
+        function startScan() {
+            if (!parsed) return;
+            saveConfig();
+
+            const exts = [];
+            if (g('ext-mp4').checked) exts.push('.mp4');
+            if (g('ext-mov').checked) exts.push('.mov');
+
+            const custom = g('ext-custom').value.trim();
+            if (custom) {
+                custom.split(',').forEach(e => {
+                    let cleaned = e.trim();
+                    if (cleaned) {
+                        // Only add dot if it's a standard extension (not a path/colon segment)
+                        if (!cleaned.startsWith('.') && !cleaned.startsWith('/') && !cleaned.startsWith(':')) {
+                            cleaned = '.' + cleaned;
+                        }
+                        if (!exts.includes(cleaned)) exts.push(cleaned);
+                    }
+                });
+            }
+
+            if (!exts.length) { alert('Select or type at least one extension.'); return; }
+
+            const startNum = parseInt(g('start-num').value) || parsed.next_num;
+            const params = new URLSearchParams({
+                base_url: parsed.base_url, // Now empty in backend-returned data
+                prefix: parsed.prefix,
+                num_width: parsed.num_width,
+                base_num: parsed.base_num,
+                start_num: startNum,
+                max_n: g('max-scan').value,
+                max_mis: g('max-miss').value,
+                delay_min: g('delay-min').value,
+                delay_max: g('delay-max').value,
+                cookie: g('cookie-input').value.trim(),
+                click_mode: g('click-mode').checked,
+                auto_download: g('auto-download').checked,
+            });
+            exts.forEach(e => params.append('exts', e));
+
+            scanning = true;
+            validUrls = [];
+            g('btn-start').textContent = '⏹ Stop';
+            g('count').textContent = '0 valid URLs found';
+            g('prog-bar').style.width = '0%';
+            document.querySelectorAll('.btn-save').forEach(b => b.style.display = 'none');
+
+            addLine(`\n--- Scan started ${new Date().toLocaleTimeString()} ---`);
+
+            evtSrc = new EventSource(`/scan?${params}`);
+
+            evtSrc.onmessage = (e) => {
+                const msg = JSON.parse(e.data);
+
+                if (msg.type === 'log') {
+                    addLine(msg.msg);
+
+                } else if (msg.type === 'range') {
+                    const d1 = addLine(`[Range] First : ${msg.first}`, 'range-line');
+                    const d2 = addLine(`[Range] Last  : ${msg.last}`, 'range-line');
+
+                } else if (msg.type === 'checking') {
+                    const pct = Math.round((msg.i / msg.total) * 100);
+                    g('prog-bar').style.width = pct + '%';
+                    const short = msg.url.split('/').pop();
+                    const waitInfo = msg.wait ? `[${msg.wait}s wait] ` : '';
+                    g('status').textContent = `${waitInfo}Checking ${short}  |  Found: ${msg.found}`;
+
+                } else if (msg.type === 'hit') {
+                    validUrls.push(msg.url);
+                    addLink(msg.url);
+                    g('count').textContent =
+                        `${msg.found} valid URL${msg.found !== 1 ? 's' : ''} found`;
+
+                } else if (msg.type === 'stopped') {
+                    addLine(`\n[Stopped: ${msg.reason}]`);
+
+                } else if (msg.type === 'done') {
+                    scanDone(msg.found);
+                }
+
+                scrollFeed();
+            };
+
+            evtSrc.onerror = () => {
+                if (scanning) scanDone(validUrls.length);
+            };
+        }
+
+        function stopScan() {
+            if (evtSrc) { evtSrc.close(); evtSrc = null; }
+            scanning = false;
+            g('btn-start').textContent = '▶ Start Scan';
+            g('status').textContent = 'Stopped';
+            addLine('\n[Scan stopped by user]');
+            if (validUrls.length) showSaveButtons();
+        }
+
+        function scanDone(found) {
+            if (evtSrc) { evtSrc.close(); evtSrc = null; }
+            scanning = false;
+            g('btn-start').textContent = '▶ Start Scan';
+            g('prog-bar').style.width = '100%';
+            g('status').textContent = `Done — ${found} URL${found !== 1 ? 's' : ''} found`;
+            addLine(`\n--- Scan finished ${new Date().toLocaleTimeString()} — ${found} URL${found !== 1 ? 's' : ''} found ---\n`);
+            if (found) showSaveButtons();
+        }
+
+        function showSaveButtons() {
+            document.querySelectorAll('.btn-save').forEach(b => b.style.display = 'inline-block');
+        }
+
+        // ── Clear ──────────────────────────────────────────────────────────────────
+        function clearFeed() {
+            g('feed').innerHTML = '<div class="log-line">Cleared. Paste a URL and click Parse.</div>';
+            validUrls = [];
+            g('count').textContent = '0 valid URLs found';
+            g('prog-bar').style.width = '0%';
+            g('status').textContent = 'Ready';
+            document.querySelectorAll('.btn-save').forEach(b => b.style.display = 'none');
+        }
+
+        // ── Save HTML ──────────────────────────────────────────────────────────────
+        function saveHTML() {
+            if (!validUrls.length) return;
+            const base = g('base-display').textContent;
+            const stamp = new Date().toLocaleString();
+            const rows = validUrls.map((u, i) =>
+                `<tr><td class="n">${i + 1}</td><td><a href="${u}" target="_blank">${u}</a></td></tr>`
+            ).join('\n');
+
+            const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>TruthSeeker Results</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a1628;color:#ccc;font-family:'Segoe UI',sans-serif;padding:32px}
+h1{color:#e94560;font-size:1.8rem;margin-bottom:6px}
+.meta{color:#888;font-size:.85rem;margin-bottom:24px}
+table{width:100%;border-collapse:collapse}
+th{background:#0f3460;color:#7ec8e3;text-align:left;padding:10px 14px;font-size:.83rem}
+td{padding:9px 14px;border-bottom:1px solid #16213e;font-size:.87rem;word-break:break-all}
+td.n{color:#555;width:44px;text-align:right}
+a{color:#7ec8e3;text-decoration:none}a:hover{color:#e94560;text-decoration:underline}
+tr:hover{background:#0d1b3e}
+.foot{margin-top:24px;color:#444;font-size:.72rem}
+</style></head><body>
+<h1>🔍 TruthSeeker Plus — Valid Video URLs</h1>
+<p class="meta">Generated: ${stamp} &nbsp;|&nbsp; ${base} &nbsp;|&nbsp;
+<strong style="color:#4caf50">${validUrls.length} active URL(s) — 404s excluded</strong></p>
+<table><thead><tr><th>#</th><th>URL (click to open)</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<p class="foot">Only HTTP 200/206 non-HTML responses are listed.</p>
+</body></html>`;
+
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+            a.download = `TruthSeeker_${Date.now()}.html`;
+            a.click();
+        }
+
+        // ── Save PDF (via server) ──────────────────────────────────────────────────
+        async function savePDF() {
+            if (!validUrls.length) return;
+            const res = await fetch('/export/pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    urls: validUrls,
+                    base: g('base-display').textContent,
+                })
+            });
+            if (!res.ok) { alert('PDF export failed — is fpdf2 installed?'); return; }
+            const blob = await res.blob();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `TruthSeeker_${Date.now()}.pdf`;
+            a.click();
+        }
+
+        // ── Init ───────────────────────────────────────────────────────────────────
+        loadConfig();
+    </script>
+</body>
+
+</html>

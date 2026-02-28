@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+dist/
+build/
+*.spec
+.env
+venv/
+.venv/
+.vscode/
+.idea/
+ms-playwright/
+TruthSeeker_*.pdf
+TruthSeeker_*.html
+archive/
+old/
+truthseeker.py

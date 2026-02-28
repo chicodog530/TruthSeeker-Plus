@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*$py.class
+dist/
+build/
+*.spec
+.env
+venv/
+.venv/
+.vscode/
+.idea/
+ms-playwright/
+TruthSeeker_*.pdf
+TruthSeeker_*.html
+archive/
+old/
+truthseeker.py
+# --- Ignore huge bundled runtimes / browser binaries ---
+Portable_App/_internal/playwright/
+Portable_App/browsers/
+Portable_App/downloads/
+Portable_App/**/chrome.dll
+Portable_App/**/chrome-headless-shell.exe
