@@ -21,3 +21,10 @@ Portable_App/browsers/
 Portable_App/downloads/
 Portable_App/**/chrome.dll
 Portable_App/**/chrome-headless-shell.exe
+
+# Ignore Playwright / Chromium downloads
+browsers/
+
+# Ignore large build artifacts
+TruthSeeker_Portable.zip
+*.zip
